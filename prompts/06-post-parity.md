@@ -26,6 +26,11 @@ review. Reviewers run on [reviewer model], per the Model plan — inheriting
 the session default is a deviation; log it. A recurring marker pattern is a
 rulebook indictment, same as ever: queue the amendment for me.
 
+After a target module replaces the old implementation and its parity gate
+passes, remove target-side fallback code, adapters, and branches with no
+remaining callers. Verify callers before deletion. Keep the runnable original
+baseline and its evidence until the full migration is accepted.
+
 For each `PERF(port)` fix or requested performance comparison, attach a
 reproducible measurement receipt:
 

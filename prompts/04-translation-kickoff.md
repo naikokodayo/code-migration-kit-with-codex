@@ -31,7 +31,10 @@ or relax active rules from inside the loop.
 Set the model explicitly on every agent call: implementers on
 [implementer model], reviewers on [reviewer model]; fixers ride
 [implementer model] unless the Model plan says otherwise. Inheriting the
-session default is a deviation; log it.
+session default is a deviation; log it. Use the approved lower tier for
+mechanical, low-risk slices; send cross-file or security-sensitive slices to
+independent high-tier review. Assign disjoint write scopes and keep coupled
+files in one coordinated slice rather than editing them concurrently.
 
 Use a workflow. The queue is every `migration/manifest.tsv` entry with no
 translated file on disk yet — so reruns resume for free. Work down it in

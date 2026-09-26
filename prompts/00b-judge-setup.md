@@ -38,6 +38,12 @@ an original helper is mixed-route evidence, not target-language parity.
 Reconcile attempted test recipes with result receipts. A recipe that exits
 before writing a receipt is unresolved, never a pass or an environment skip;
 retain its raw log and the tested binary's hash.
+For each behavior slice, keep one final receipt bound to the source content
+hash and tested binary hash, with command, executable route,
+executed/passed/failed/skipped counts, and a fail-closed verdict. Keep the
+raw output needed to diagnose failures and skips. Once the final receipt cites
+an immutable Git commit containing earlier runs, duplicate intermediate
+success logs need not remain as separate JSON files in `migration/`.
 
 **1. Categorize.** Take the call #3 census and confirm it against the source.
 Keep its counting unit and four mutually exclusive categories: **portable**

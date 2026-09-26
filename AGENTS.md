@@ -58,6 +58,14 @@ process when a prompt exists for the step.
    decides a question, translate to the most conservative representation the
    target offers, leave a greppable TODO marker, and keep moving. A searchable
    artifact beats a stalled batch.
+9. **Keep evidence compact and tied to the code tested.** For each behavior
+   slice, keep one final, fail-closed receipt with the source content hash,
+   tested binary hash, command, route, counts, and verdict. Missing runs,
+   receipts, or hashes are unresolved, never passes. Retain raw output for
+   failures and skips. Intermediate duplicate success logs may live in a
+   referenced, fixed Git commit instead of multiplying JSON files in the
+   current `migration/` tree; do not discard a required queue, baseline ledger,
+   or historical receipt.
 
 ## Where things live
 
@@ -81,11 +89,12 @@ Token spend concentrates in loops; blast radius decides the tier, not task
 prestige. Rulebook authorship and amendments: largest available model —
 one-time work, and every error replicates into every translated file.
 Skeptic reviewers: largest or mid tier, depending on gap complexity.
-High-volume translation implementers: mid or small tier — two reviewers and
-a compiler stand behind them. Fixers: mid tier — the compiler is the real
-referee. The model plan is the human's decision, made at the feasibility
-gate (prompt 00's Model plan section), and it binds every post-feasibility
-prompt — 01 through 06 take the chosen tiers as explicit `[model]`
+Complex cross-file or security-sensitive paths need independent high-tier
+review. Mechanical, low-risk translation and cleanup can use a lower tier;
+keep the two independent reviewers and compiler gates. Fixers: mid tier —
+the compiler is the real referee. The model plan is the human's decision, made
+at the feasibility gate (prompt 00's Model plan section), and it binds every
+post-feasibility prompt — 01 through 06 take the chosen tiers as explicit `[model]`
 placeholders. Running subagents on an untriggered default is a process
 violation — log it in the deviation log (RULEBOOK.md, Deviation log
 section).
@@ -93,9 +102,11 @@ section).
 ## Codex orchestration
 
 When a migration prompt requests a workflow, use Codex subagents if available.
-Give each worker a disjoint write scope; reviewers read only. Start independent
-reviewers without inherited conversation history and give each the source,
-rulebook, inventory slice, and candidate output, never the other verdict.
+Give each worker a disjoint write scope; do not modify related files
+concurrently, and do not fan out unrelated files merely to fill agent slots.
+Reviewers read only. Start independent reviewers without inherited conversation
+history and give each the source, rulebook, inventory slice, and candidate
+output, never the other verdict.
 Respect the runtime's concurrency limit; smaller batches preserve the topology.
 Use the approved available model and reasoning settings per role. If the client
 cannot select them, report the limitation instead of pretending a switch occurred.
