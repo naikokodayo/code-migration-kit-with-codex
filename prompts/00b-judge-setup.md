@@ -35,6 +35,9 @@ and can't see the new code, so it can't judge anything. Three steps:
 Audit every executable and helper the harness launches. Record which original
 or target binary handles each assertion; a passing assertion that still calls
 an original helper is mixed-route evidence, not target-language parity.
+Reconcile attempted test recipes with result receipts. A recipe that exits
+before writing a receipt is unresolved, never a pass or an environment skip;
+retain its raw log and the tested binary's hash.
 
 **1. Categorize.** Take the call #3 census and confirm it against the source.
 Keep its counting unit and four mutually exclusive categories: **portable**
