@@ -56,6 +56,12 @@ A shell-free API or memory-safe language does not prove that the correct branch,
 remote, file, or account is selected. Reject unavailable context rather than
 substituting a convenient default. At the permitted validation stage, exercise
 two distinguishable targets and verify that the unselected one is unchanged.
+For patch-based writes, compare the displayed path with the path the apply
+command resolves *after* prefix stripping. Check every patch section before
+slicing out a selected hunk or line; an unsupported earlier section must not
+turn a later file into the selected target. Test configured prefixes and two
+same-named files at different depths, and verify the index remains unchanged
+when an unsafe patch is rejected.
 For interactive commands, separately verify the controlling terminal,
 confirmation text, visible results, and terminal restoration after failure.
 
