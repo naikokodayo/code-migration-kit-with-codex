@@ -1,5 +1,9 @@
 # Run notes — receipts from this kit's own test runs
 
+> Historical upstream receipts, preserved from the Claude Code kit. References
+> to its settings, models, and files describe those runs; they are not Codex
+> validation. Run `python3 scripts/check_kit.py` for this adaptation's checks.
+
 This kit's prompts and scripts were dogfooded before publishing. This file is
 the receipts: what ran, what broke, what changed because of it.
 

@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 # Copyright 2026 Anthropic PBC
 # SPDX-License-Identifier: Apache-2.0
+# Modified for the Codex adaptation: clarify execution-rule limitations.
 # Build-daemon transport for the Step 4 survey build (prompts/05-survey-build.md).
 #
 # The contract: the daemon that owns the build is the ONLY process that runs
 # the compiler. Fixers consume the numbered output files
 # (migration/build-output-r<N>.txt) and never run the build themselves — with
-# the migration's deny rules active they can't, and this script is what makes that
-# workable past a couple of rounds. Run 3's receipt: the human served as
+# Codex rules are guardrails, not a universal command block. The human starts
+# this daemon outside the agent loop to keep builds separate. Run 3's receipt: the human served as
 # build daemon by hand — fine for 2 rounds, not for 50 (RUN-NOTES).
 #
 # Watches the source tree by content hash (.git, target, node_modules, dist,

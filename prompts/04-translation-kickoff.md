@@ -1,10 +1,12 @@
 # 04 — Translation kickoff
 
+<!-- Modified for the Codex adaptation; see README.md for provenance. -->
+
 **When:** Step 3, after the stress test is signed off. **Prerequisites:**
 amended RULEBOOK.md, complete inventory, manifest at `migration/manifest.tsv`
 (source path → target path per the rulebook's naming rules), and
-`templates/settings.json` copied to the target repo's `.claude/settings.json`
-so the banned commands actually deny.
+`templates/migration.rules` copied to the target repo's `.codex/rules/migration.rules`
+with setup verified per `templates/rules.README.md`.
 **Placeholders:** `[100]` (batch size), `[TODO(port)]` (your
 greppable markers — TODO/PERF/BUG per rulebook §3), `[implementer model]`,
 `[reviewer model]` (from the Model plan signed off at the feasibility gate).
@@ -15,18 +17,18 @@ your kickoff needs to be longer than this, your rulebook isn't done.
 
 ---
 
-Before any fan-out, verify `.claude/settings.json`. Never install it
-yourself — installation is my act, because that's the moment I decide the
-referee price; Run 3's orchestrator detected the missing file and
-self-installed it, automating away exactly that decision. If it's missing,
-STOP and wait: tell me to install `templates/settings.json`, or record my
-explicit waiver in the deviation log — Run 2 ran end to end with the
-guardrails silently never installed. If it exists and carries deny rules for
-this migration's expensive commands — the template adapted per
-`templates/settings.README.md`, including any dissolve edit I made at a
-gate — proceed silently. Halt and ask only if it lacks deny rules entirely,
-or you can't tell whether I sanctioned what's there; never install, never
-overwrite. Set the model explicitly on every agent call: implementers on
+Before every fan-out, including re-rounds, verify the human-installed
+`.codex/rules/migration.rules` using `templates/rules.README.md`: inspect the
+adapted prefixes, check decisions with `codex execpolicy check`, and confirm
+the human restarted Codex with the project config trusted. File existence or
+an offline rule check alone does not prove runtime enforcement. Codex rules
+cover execution outside the sandbox, not every tool or command path. Keep
+builds/tests in the separate human-run daemon; never route around restrictions.
+If setup or required isolation is missing, stop and report the exact missing
+piece, or record an explicit human waiver at the gate. Never install, overwrite,
+or relax active rules from inside the loop.
+
+Set the model explicitly on every agent call: implementers on
 [implementer model], reviewers on [reviewer model]; fixers ride
 [implementer model] unless the Model plan says otherwise. Inheriting the
 session default is a deviation; log it.
@@ -59,5 +61,5 @@ Append one timestamped line for this step to `migration/cost-log.tsv` —
 create it with header `step\ttimestamp\twall_clock_min\ttokens\tsubagents\tmodel`
 if absent; real values where available, `unknown` where not. Plain
 tab-separated values, no `key=` prefixes — a valid row looks exactly like:
-`3	2026-06-11T14:02Z	21	2035336	35	claude-sonnet-4-6`
+`3	2026-06-11T14:02Z	21	2035336	35	unknown`
 (your step number and values vary; the format doesn't).

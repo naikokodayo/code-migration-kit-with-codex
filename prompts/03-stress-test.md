@@ -1,5 +1,7 @@
 # 03 — Stress-test the rules
 
+<!-- Modified for the Codex adaptation; see README.md for provenance. -->
+
 **When:** Step 2, after the rulebook, inventory, and dependency map are signed
 off. **Prerequisites:** committed RULEBOOK.md and inventory; this prompt is
 only valid for **structure-preserving** migrations — for redesigns the bakeoff
@@ -10,24 +12,22 @@ signed off at the feasibility gate.
 
 ---
 
-Use a workflow. The **rulebook** has never met real code. Before any fan-out,
-stress-test it on [3] real files. Nothing translated here ships — the only
-output that survives is rule changes. Translating [3] files twice to throw
-both away is the cost; Run 1's bakeoff bought a both-wrong bug that would
-have replicated across the entire fan-out (RUN-NOTES).
+Use a workflow. The **rulebook** has never met real code. Stress-test it on
+[3] real files before translation fan-out. Nothing translated here ships;
+the surviving outputs are evidence and proposed rule changes.
 
-Before any fan-out, two checks. First: `.claude/settings.json`. Never
-install it yourself — installation is my act, because that's the moment I
-decide the referee price; Run 3's orchestrator detected the missing file and
-self-installed it, automating away exactly that decision. If it's missing,
-STOP and wait: tell me to install `templates/settings.json`, or record my
-explicit waiver in the deviation log — Run 2 ran end to end with the
-guardrails silently never installed. If it exists and carries deny rules for
-this migration's expensive commands — the template adapted per
-`templates/settings.README.md`, including any dissolve edit I made at a
-gate — proceed silently. Halt and ask only if it lacks deny rules entirely,
-or you can't tell whether I sanctioned what's there; never install, never
-overwrite. Second: set the model explicitly on every subagent call —
+Before every fan-out, including re-rounds, verify the human-installed
+`.codex/rules/migration.rules` using `templates/rules.README.md`: inspect the
+adapted prefixes, check decisions with `codex execpolicy check`, and confirm
+the human restarted Codex with the project config trusted. File existence or
+an offline rule check alone does not prove runtime enforcement. Codex rules
+cover execution outside the sandbox, not every tool or command path. Keep
+builds/tests in the separate human-run daemon; never route around restrictions.
+If setup or required isolation is missing, stop and report the exact missing
+piece, or record an explicit human waiver at the gate. Never install, overwrite,
+or relax active rules from inside the loop.
+
+Second: set the model explicitly on every subagent call —
 translators and the pilot implementer on [implementer model], reviewers and
 the diff inspector on [reviewer model]; fixers ride [implementer model]
 unless the Model plan says otherwise. Inheriting the session default is a
@@ -48,7 +48,8 @@ inventing policy. Translator B gets a scratch directory outside the repo
 containing only the [3] source files, copied out — not a checkout, so the
 rulebook and inventory aren't on disk to find — and one instruction: port
 these the way a fluent [target language] engineer would write them natively.
-B must never see the rulebook or learn it exists — one glimpse and it stops
+Start B in a fresh Codex session with no inherited conversation, kit skill,
+or kit AGENTS.md. B must never see the rulebook or learn it exists — one glimpse and it stops
 being a baseline.
 
 A third context, the **diff inspector**, sees everything. Run both outputs
@@ -71,13 +72,13 @@ failed pilot; the fan-out depends on obedience, not on three files going well.
 
 Queue every proposed rule change for me with its evidence — never edit the
 rulebook yourselves. Round 1 ends at the amendment queue: show me the queue
-and the adherence findings — not the translations — delete both workspaces —
-A's worktree and B's scratch directory — confirming the deletions in the
-report, and exit. Applying amendments is my act at the gate; a workflow that
-waits mid-run for me is forbidden (CLAUDE.md rule 3). After I apply them I
+and the adherence findings — not the translations — retire both disposable workspaces —
+archive A's managed worktree using the client tool where available and remove
+only B's task-owned scratch directory — recording the cleanup in the report, and exit. Applying amendments is my act at the gate; a workflow that
+waits mid-run for me is forbidden (AGENTS.md rule 3). After I apply them I
 re-paste this prompt, and it resumes from disk state: if round-1 artifacts
-already exist under `migration/stress-test/`, skip the settings check and
-the file selection and run the re-round — one more bakeoff on fresh files,
+already exist under `migration/stress-test/`, repeat the policy check, skip the old
+file selection, and run the re-round — one more bakeoff on fresh files,
 weighted toward the sections that just changed (re-running the same files
 only proves the patch) — plus the pilot against the amended rules. Stop
 early if the same section gets re-amended twice; that needs a decision from
@@ -90,5 +91,5 @@ Append one timestamped line for this step to `migration/cost-log.tsv` —
 create it with header `step\ttimestamp\twall_clock_min\ttokens\tsubagents\tmodel`
 if absent; real values where available, `unknown` where not. Plain
 tab-separated values, no `key=` prefixes — a valid row looks exactly like:
-`3	2026-06-11T14:02Z	21	2035336	35	claude-sonnet-4-6`
+`3	2026-06-11T14:02Z	21	2035336	35	unknown`
 (your step number and values vary; the format doesn't).

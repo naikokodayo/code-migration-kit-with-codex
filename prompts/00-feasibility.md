@@ -1,5 +1,7 @@
 # 00 — Feasibility report
 
+<!-- Modified for the Codex adaptation; see README.md for provenance. -->
+
 **When:** before anything else. Read-only toward the repo under survey;
 produces a report and a verdict. The single permitted write is appending to
 `migration/cost-log.tsv`.
@@ -76,5 +78,5 @@ Append one timestamped line for this step to `migration/cost-log.tsv` —
 create it with header `step\ttimestamp\twall_clock_min\ttokens\tsubagents\tmodel`
 if absent; real values where available, `unknown` where not. Plain
 tab-separated values, no `key=` prefixes — a valid row looks exactly like:
-`3	2026-06-11T14:02Z	21	2035336	35	claude-sonnet-4-6`
+`3	2026-06-11T14:02Z	21	2035336	35	unknown`
 (your step number and values vary; the format doesn't).

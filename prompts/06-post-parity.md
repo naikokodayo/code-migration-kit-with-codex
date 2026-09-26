@@ -1,5 +1,7 @@
 # 06 — Post-parity burndown
 
+<!-- Modified for the Codex adaptation; see README.md for provenance. -->
+
 **When:** only after the Step 6 done-gate — every parity test passing AND the
 original suite re-run clean on the original code, both counts documented (see
 README Step 6). Never alongside it. **Prerequisites:** Step 6 report with
@@ -30,5 +32,5 @@ Append one timestamped line for this step to `migration/cost-log.tsv` —
 create it with header `step\ttimestamp\twall_clock_min\ttokens\tsubagents\tmodel`
 if absent; real values where available, `unknown` where not. Plain
 tab-separated values, no `key=` prefixes — a valid row looks exactly like:
-`3	2026-06-11T14:02Z	21	2035336	35	claude-sonnet-4-6`
+`3	2026-06-11T14:02Z	21	2035336	35	unknown`
 (your step number and values vary; the format doesn't).

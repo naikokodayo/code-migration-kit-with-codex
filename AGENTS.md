@@ -1,7 +1,12 @@
-# Operating manual for Claude Code sessions in this repository
+# Operating manual for Codex sessions in this repository
 
-You are working inside the Claude Code Migration Kit, or inside a repository
-that has adopted it. Read this before acting on any migration request.
+<!-- Modified from the upstream kit for Codex; see README.md for provenance. -->
+
+You are working inside the Codex Migration Kit, or inside a repository
+that has adopted it. Read this before acting on any language-migration request.
+These migration gates apply to using the kit, not to maintaining the kit itself.
+For kit maintenance, run `python3 scripts/check_kit.py`; preserve upstream
+copyright notices and historical receipts.
 
 ## What this kit is
 
@@ -29,18 +34,17 @@ process when a prompt exists for the step.
    unit, separate contexts, assume the work is wrong, touch nothing. Every
    finding cites a rule or a source line. A third rules on disagreements,
    defaulting to not-confirmed. Fixers apply confirmed findings only.
-5. **Banned operations are banned by configuration.** `templates/settings.json`
-   denies the expensive commands inside loops (mutating version control, the
-   compiler, long-running test commands). If a denied command blocks you, that
-   is the design working: flag it, don't route around it. Exception: a cheap
-   typecheck (tsc, go vet) may be promoted into the loop per README Step 4 —
-   that swap is made by editing settings.json at a gate, never by routing
-   around a live deny. If the platform's own safeguards block you from
-   editing settings.json (self-modification protection), that is not an
-   error to work around: the human makes the edit manually, or serves as
-   build daemon per prompts/05. Routing around a live deny is forbidden no
-   matter which layer enforces it — Run 3's agent was blocked at exactly
-   this point and correctly escalated.
+5. **Separate builds from translation loops.** Follow `templates/rules.README.md`:
+   the human installs and adapts `.codex/rules/migration.rules` at the gate,
+   restarts Codex, and confirms the project config is trusted. Check the file
+   and policy decisions before each batch; file existence alone is not proof
+   of runtime enforcement. Codex rules govern execution outside the sandbox;
+   they are not a universal command or filesystem security boundary. Never
+   bypass a restriction with a wrapper, alternate tool, or permission change.
+   Only the human-started build daemon runs expensive builds and tests. If the
+   required isolation is unavailable, report that limitation and wait for the
+   human's isolation setup or explicit waiver. A cheap in-loop typecheck is a
+   human-approved change to both the rulebook and rules at a gate.
 6. **Recurring failures move upstream.** Fix one instance, fine. See the same
    failure twice more, stop fixing instances: write up which rule produced it,
    queue the rulebook amendment, and propose regenerating the slice that rule
@@ -85,3 +89,24 @@ prompt — 01 through 06 take the chosen tiers as explicit `[model]`
 placeholders. Running subagents on an untriggered default is a process
 violation — log it in the deviation log (RULEBOOK.md, Deviation log
 section).
+
+## Codex orchestration
+
+When a migration prompt requests a workflow, use Codex subagents if available.
+Give each worker a disjoint write scope; reviewers read only. Start independent
+reviewers without inherited conversation history and give each the source,
+rulebook, inventory slice, and candidate output, never the other verdict.
+Respect the runtime's concurrency limit; smaller batches preserve the topology.
+Use the approved available model and reasoning settings per role. If the client
+cannot select them, report the limitation instead of pretending a switch occurred.
+If subagents or fresh contexts are unavailable, use separate Codex sessions with
+the same disk artifacts; do not label one session's repeated passes independent.
+For the blind bakeoff, use a fresh session outside the repository with only the
+selected source files and target-language brief; no inherited kit instructions.
+Prepare isolation before loop restrictions become active. Archive managed
+worktrees with the client's worktree tool when available. Do not run prohibited
+Git commands to create or clean up a worktree inside a restricted loop.
+
+Kit paths resolve from this kit's root; `migration/` and source/target paths
+resolve from the repository being migrated. Invoke kit scripts by their actual
+path while keeping the target repository as the working directory.

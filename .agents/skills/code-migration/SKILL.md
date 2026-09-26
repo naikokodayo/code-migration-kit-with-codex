@@ -12,12 +12,21 @@ description: >
 
 # Code migration (six-step process)
 
-You are orchestrating a language migration using the Claude Code Migration
-Kit. [kit path]/README.md defines the process; [kit path]/CLAUDE.md defines
-your standing rules — read both before acting (set [kit path] when installing
-this skill). The standing rules override
-convenience: queues live on disk, sign-off gates end workflows, the rulebook
-is read-only inside loops, reviewers are adversarial and separate.
+<!-- Modified from the upstream skill for Codex; see the kit README.md. -->
+
+Use the Codex Migration Kit's six-step language-migration process.
+Resolve this SKILL.md's real filesystem path first (follow any symlink).
+The kit root is three directories above its containing directory:
+`.agents/skills/code-migration` → kit root. Read the root `README.md` and
+`AGENTS.md` before acting. Resolve every `prompts/`, `templates/`, and
+`scripts/` reference below against that root, not the target repository.
+Run scripts with the target repository as the working directory.
+If those resources are missing, report an incomplete installation rather
+than inventing a workflow. The full kit must remain beside this skill.
+
+Queues live on disk, phase gates end workflows, and the rulebook stays
+read-only inside loops. Use independent Codex subagents as described in
+`AGENTS.md`; unavailable model selection or context isolation must be disclosed.
 
 ## Routing
 
@@ -39,8 +48,9 @@ is read-only inside loops, reviewers are adversarial and separate.
    human (the policy decisions are theirs; survey the codebase for the facts),
    then `prompts/02` for the gap inventory. Each ends at its own gate.
 3. **Step 1 signed off:** confirm the HUMAN has installed
-   `.claude/settings.json` from `templates/settings.json` — prompt 03
-   verifies it; never install it yourself — then run
+   `.codex/rules/migration.rules` from `templates/migration.rules` — prompt 03
+   verifies policy decisions and the human's trusted-config/restart confirmation;
+   see `templates/rules.README.md`; never install it yourself — then run
    `prompts/03-stress-test.md`. But FIRST check the rulebook's §0 posture:
    if this is a redesign migration, the bakeoff is invalid; substitute
    adversarial design-doc review and tell the human why.
@@ -49,7 +59,7 @@ is read-only inside loops, reviewers are adversarial and separate.
    `prompts/04-translation-kickoff.md` with `scripts/queue_runner.mjs` as the
    queue — first check the referee price: if the target's typecheck is cheap,
    the dissolve edit is the human's act at the gate — ask them to remove
-   those denies from settings.json; never edit it yourself (README Step 4
+   those denies from migration.rules and restart Codex; never edit it yourself (README Step 4
    dissolves into Step 3).
 5. **Translation queue empty:** Step 4 via `prompts/05-survey-build.md`
    (survey build → machine queue → fixers without compiler access; skip it

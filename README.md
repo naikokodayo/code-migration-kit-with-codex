@@ -1,8 +1,26 @@
-# Claude Code Migration Kit
+# code-migration-kit-with-codex
 
-A starter kit for running large-scale language migrations with Claude Code: the
-prompts, templates, and scripts behind the process described in
-**How Anthropic runs large-scale code migrations with Claude Code**.
+A Codex adaptation of [Anthropic's code migration kit](https://github.com/anthropics/code-migration-kit-with-claude-code),
+based on upstream commit `cf91c9d5068d9aaf95a36164169f08c3e636c909`.
+It preserves the six-step migration process and portable scripts, with Codex
+instructions, a repository skill, and native execution-rule templates.
+This is an independent adaptation, not an official OpenAI or Anthropic product.
+
+中文快速入门：[README.zh-CN.md](README.zh-CN.md)。
+
+## Source and attribution
+
+This project is derived from **Anthropic's
+[code-migration-kit-with-claude-code](https://github.com/anthropics/code-migration-kit-with-claude-code)**.
+The original migration methodology, prompts, scripts, templates, fixtures, and
+historical examples come from that repository. This adaptation changes the
+agent instructions, skill discovery, execution rules, and workflow guidance for
+Codex, and adds Chinese documentation and offline checks.
+
+The original Apache-2.0 license and Anthropic copyright notices are retained.
+See [LICENSE](LICENSE). Upstream history is preserved for traceability.
+
+This adaptation: [naikokodayo/code-migration-kit-with-codex](https://github.com/naikokodayo/code-migration-kit-with-codex).
 
 This kit defaults to **structure-preserving migrations** — same architecture,
 same data structures, new language. That's the case where the process below is
@@ -17,38 +35,59 @@ and one part becomes invalid.
 > ([PORTING.md](https://github.com/oven-sh/bun/commit/46d3bc29f270fa881dd5730ef1549e88407701a5))
 > and a one-sentence kickoff.
 
-> **Status:** Reference code. This repo is a companion to the blog post and is
-> not actively maintained. Issues and PRs are not monitored.
+> **Status:** Reference code. `RUN-NOTES.md` and `examples/` are preserved
+> upstream history, not evidence of a Codex end-to-end migration. Local checks
+> cover script fixtures, skill structure, and rule matching; see below.
 
 ## Quick start
 
-1. Clone the kit inside (or adjacent to) the repo you're migrating:
-   `git clone <kit> ./migration-kit`.
-2. Copy or `@`-import the kit's `CLAUDE.md` into the target repo's `CLAUDE.md`
-   before the six steps below begin — it's the operating manual every session
-   reads.
-3. Optional: install the skill —
-   `cp -r migration-kit/skill ~/.claude/skills/code-migration`, then replace `[kit path]` inside the installed SKILL.md.
-4. Open Claude Code in the target repo and paste `prompts/00-feasibility.md`
-   with its placeholders filled.
-5. Make sure you have a judge before Step 1. If your existing test suite hits
-   the public surface (or already lives in a third language), it's your judge —
-   carry it into Step 6. If it imports internals that die with the old language,
-   run `prompts/00b-judge-setup.md` to build a portable parity harness and
-   validate it (against the original *and* against deliberately broken code)
-   before any translation. No judge, no exit condition.
-6. Before any translation fan-out (prompt 03 onward): copy
-   `templates/settings.json` to the target repo's `.claude/settings.json`
-   (see `templates/settings.README.md`) — installed by you before prompt 03
-   (Step 2's pilot needs the denies live), active through Step 4 (prompt 05),
-   test denies re-activated for Step 6's fix loops. Prompts 03 and 04 verify
-   it exists and stop without it — in one early test run this step was silently
-   skipped and nothing caught it.
-7. Then work `prompts/01`–`06` in order, one gate at a time.
+Requires Python 3, Node.js, Bash (for the build daemon), and a current Codex
+installation. No Claude account, SDK, or API integration is required.
+
+1. Put this adapted kit inside or adjacent to the repository you are migrating.
+   In the commands below, set `KIT` to its absolute path and run from the
+   **target repository root**.
+2. Merge this kit's `AGENTS.md` into the target's existing `AGENTS.md`, preserving
+   project instructions. If none exists, copy it. Adjust kit-relative paths to
+   your kit location. Codex reads `AGENTS.md`; an `@`-import is not required.
+3. Link the skill into the target repository (do not overwrite an existing skill):
+   ```sh
+   KIT=/absolute/path/to/code-migration-kit-with-codex
+   mkdir -p .agents/skills
+   ln -s "$KIT/.agents/skills/code-migration" .agents/skills/code-migration
+   ```
+   Keep the full kit at that path; copying only `SKILL.md` loses its resources.
+   If working in the kit itself, the skill is already discoverable; skip the link.
+4. Open the target repository in Codex. Invoke `$code-migration` with the target
+   language, or ask Codex to read `prompts/00-feasibility.md` from the kit and
+   fill its placeholders. Stop at the feasibility verdict.
+5. Validate the behavioral judge before Step 1. Use `prompts/00b-judge-setup.md`
+   if your current tests depend on internals that won't survive the port.
+6. Before prompt 03, the human adapts and installs `templates/migration.rules`
+   into the target's `.codex/rules/migration.rules`, then restarts Codex with
+   the project config trusted. Follow [the rule setup and limitations](templates/rules.README.md).
+   Do not install the loop bans before feasibility or judge setup: those phases
+   need to measure builds and validate tests. Never mistake a file's presence
+   for proof of runtime enforcement.
+7. Run prompts 01–06 in order, one gate at a time. Select available models at
+   the feasibility gate; the kit does not hardcode a model ID or change your
+   global Codex configuration.
+
+## Local validation
+
+From the kit root, run `python3 scripts/check_kit.py`. This uses the original
+Python, JS/TS, and C fixtures, exercises the manifest, queue and build daemon,
+and validates rule decisions with `codex execpolicy check`. It does not call
+an AI model. It does not prove live sandbox enforcement or migration quality.
+
+Official references: [AGENTS.md](https://learn.chatgpt.com/docs/agent-configuration/agents-md),
+[skills](https://learn.chatgpt.com/docs/build-skills),
+[rules](https://learn.chatgpt.com/docs/agent-configuration/rules), and
+[subagents](https://learn.chatgpt.com/docs/agent-configuration/subagents).
 
 ## Should you migrate at all?
 
-Start with `prompts/00-feasibility.md`. Paste it into Claude Code in your repo.
+Start with `prompts/00-feasibility.md`. Paste it into Codex in your repo.
 It produces a read-only report: the case for leaving, three committed calls
 (structure-preserving or redesign, what verification costs, whether your tests
 survive), a sketch of the six steps for your repo, and a verdict. "Don't
@@ -66,7 +105,7 @@ fixer agents; recurring failures indict a rule, and the rule gets amended.
 | 1. Create the map and the rules | Dependency map orders the work; gap inventory traces what the target language demands; the rulebook decides every translation question once | `scripts/depmap_*`, `prompts/01`, `prompts/02`, `templates/RULEBOOK.md`, `templates/inventory.tsv` |
 | 2. Stress-test the rules | Dual-translation bakeoff + pilot run on a handful of nasty files; the only surviving output is rule changes | `prompts/03-stress-test.md` |
 | 3. Translate everything | Implementer + two adversarial reviewers + fixer per unit, fanned out over a mechanical queue; the compiler waits | `prompts/04-translation-kickoff.md`, `scripts/queue_runner.mjs` |
-| 4. Compile | One survey build grades everything; error list becomes a machine queue sliced by module; fixers work without compiler access | `prompts/05-survey-build.md`, `templates/settings.json` (the bans) |
+| 4. Compile | One survey build grades everything; error list becomes a machine queue sliced by module; fixers work without compiler access | `prompts/05-survey-build.md`, `templates/migration.rules` (the bans) |
 | 5. Run it | Hello world, then smoke tests — the cheap end-to-end proof before the expensive one | — |
 | 6. Match behavior | Inherited test suite burndown, or build a parity referee against the old code | your existing test suite is the artifact; `prompts/06-post-parity.md` after the gate |
 
@@ -78,7 +117,7 @@ Three artifacts, built in parallel, audited together:
    `migration/RULEBOOK.md` in the target repo): every decision a translator could
    make two ways, decided once. The meta-rule: *if two agents could answer
    differently, it goes in the rulebook.* Draft it in a conversation with
-   Claude, then have agents survey the codebase for the facts ("how many struct
+   Codex, then have agents survey the codebase for the facts ("how many struct
    fields," "how many uses tree-wide") and adversarial reviewers audit it — one
    mistake class each.
 2. **The dependency map** (`scripts/depmap_*.py|.mjs` + `prompts/01`): a
@@ -96,8 +135,9 @@ to completion, returns the evidence, and exits. **Your sign-off is the act of
 kicking off the next one.** Every queue is defined by what exists on disk, so
 stopping is free and resuming is a re-invocation, not a recovery. When a
 prompt says "use a workflow," it means: run the phase as parallel subagents
-that complete and stop at the gate — in stock Claude Code, that's a Task/Agent
-fan-out.
+that complete and stop at the gate — use Codex subagents with disjoint write scopes and fresh reviewer contexts.
+If unavailable, run independent Codex sessions over the same disk artifacts.
+See `AGENTS.md` for context isolation and model-selection requirements.
 
 ### Step 2 — Stress-test the rules
 
@@ -116,11 +156,12 @@ output file on disk yet (`scripts/queue_runner.mjs`) —
 `migration/manifest.tsv` is a Step 1 output, generated by prompt 01's
 closing action from the dependency map's order with
 `scripts/make_manifest.py`. Don't run the compiler — it grades everything next
-step. Ban the expensive operations by configuration, not request:
-`templates/settings.json`, copied to the target repo's `.claude/settings.json`
+step. Keep expensive operations out of loops using the execution rules and
+separate human-started build process in `templates/rules.README.md`. The rules
+template is `templates/migration.rules`, copied to the target repo's `.codex/rules/migration.rules`
 by you before prompt 03 (Step 2's pilot needs the denies live), active
 through Step 4 (prompt 05), test denies re-activated for Step 6's fix loops
-(see `templates/settings.README.md`).
+(see `templates/rules.README.md`).
 
 ### Step 4 — Compile
 
@@ -138,10 +179,10 @@ build by hand — fine for a couple of rounds, not for fifty.
 into Step 3** — run the typechecker inside every unit's loop instead of
 batching it. The rule: every referee has a price, and the price decides its
 position in the loop. Dissolving is an edit to the installed
-`.claude/settings.json` at the gate — remove the typecheck denies so the loop
-may run it. If settings.json was never installed there is nothing to edit,
-and the dissolve silently proceeds with no guardrails at all — one early run did
-exactly that, end to end. Install first, then dissolve.
+`.codex/rules/migration.rules` at the gate — remove the typecheck denies and restart Codex before the loop
+may run it. Verify installation before making this change. An upstream run
+skipped its original permission setup entirely; the same process failure must
+not become a silent waiver here.
 
 ### Step 5 — Run it
 
@@ -198,13 +239,13 @@ when every file must cross and the old language ends up deleted.
 
 ```
 prompts/         eight paste-ready prompts (00-feasibility, 00b-judge-setup → 06-post-parity)
-templates/       RULEBOOK.md, inventory.tsv, settings.json (+ why each rule exists)
+templates/       RULEBOOK.md, inventory.tsv, migration.rules (+ setup, limitations, and rationale)
 scripts/         dependency mappers (Python, JS/TS, C headers) + queue runner + manifest builder + build daemon
 fixtures/        test trees + expected outputs for every script
-skill/           a Claude Code skill that walks the six steps
+.agents/skills/code-migration/  the Codex skill that walks the six steps
 examples/        a complete example run — filled-in rulebook, inventory, diff report, parity scripts
-CLAUDE.md        the operating manual Claude Code reads when opened here
-RUN-NOTES.md     receipts from this kit's own test runs
+AGENTS.md        the operating manual Codex reads when opened here
+RUN-NOTES.md     historical upstream receipts (not Codex validation)
 ```
 
 ## A note on cost and rate limits
@@ -219,9 +260,8 @@ review topology, and in testing that's where the catches came from (RUN-NOTES).
 
 ## Contributing
 
-This is reference code published as a blog companion and is not accepting
-contributions. You're welcome to fork it and adapt the dependency mappers for
-your ecosystem.
+The upstream is reference code and does not monitor issues or PRs. This local
+adaptation has not been published. You can fork it for your ecosystem.
 
 ## License
 

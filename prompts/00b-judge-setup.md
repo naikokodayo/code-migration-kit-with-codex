@@ -1,5 +1,7 @@
 # 00b — Judge setup
 
+<!-- Modified for the Codex adaptation; see README.md for provenance. -->
+
 **When:** after the feasibility gate signs off "migrate," before Step 1 — but
 only when the feasibility report's call #3 found too few public-surface tests
 to judge parity (the common case). If your existing suite already exercises the
@@ -66,5 +68,5 @@ Append one timestamped line for this step to `migration/cost-log.tsv` —
 create it with header `step\ttimestamp\twall_clock_min\ttokens\tsubagents\tmodel`
 if absent; real values where available, `unknown` where not. Plain
 tab-separated values, no `key=` prefixes — a valid row looks exactly like:
-`3	2026-06-11T14:02Z	21	2035336	35	claude-sonnet-4-6`
+`3	2026-06-11T14:02Z	21	2035336	35	unknown`
 (your step number and values vary; the format doesn't).
