@@ -287,3 +287,20 @@ complete independent-review workflow has been dogfooded.
   a previous binary does not validate newly edited code.
 
 These are findings from an incomplete port, not proof of full compatibility.
+
+## Tig continuation — reuse before translation (2026-09-27), PARITY OPEN
+
+- **Evaluate the behavior, not the project's feature list.** Tig's Rust graph
+  already passes bytewise component comparisons; GitUI has useful staging code
+  but still lists commit graph structure as unfinished and requires a newer
+  compiler. Replacing Tig with GitUI or gitu would trade away the existing
+  behavior judge and require a different user interface. Record license,
+  toolchain and semantic fit before adopting an application as the base.
+- **Reuse at the narrowest proven seam.** The maintained `regex` crate fits
+  Rust 1.81 and avoids a custom regex engine. The original Tig search test now
+  passes 8/8 assertions, while POSIX syntax and hidden-field search remain
+  explicit gaps. The kit's feasibility prompt now requires this candidate
+  comparison before translation begins.
+
+The target's `MIGRATION.md` and executable-hash evidence carry the checkpoint
+results; these examples do not close the full Tig parity gate.

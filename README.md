@@ -92,7 +92,8 @@ Official references: [AGENTS.md](https://learn.chatgpt.com/docs/agent-configurat
 Start with `prompts/00-feasibility.md`. Paste it into Codex in your repo.
 It produces a read-only report: the case for leaving, three committed calls
 (structure-preserving or redesign, what verification costs, whether your tests
-survive), a sketch of the six steps for your repo, and a verdict. "Don't
+survive), an evidence-backed scan of reusable target-language code, a sketch
+of the six steps for your repo, and a verdict. "Don't
 migrate" is a valid outcome. Nothing else in this kit matters until that
 report says go.
 

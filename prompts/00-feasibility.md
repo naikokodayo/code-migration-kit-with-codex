@@ -39,6 +39,16 @@ static entries and assertion counts are not runtime test totals or pass counts.
 Start with the case for leaving: pain instances in this code, not the
 language's reputation.
 
+Before choosing a translation base, survey maintained open-source projects and
+libraries in [target language] that already implement this domain or the hard
+components. For each serious candidate, record its license, minimum compiler
+version, dependency/unsafe boundary, supported behaviors, and evidence from its
+own tests or roadmap. Compare those facts with this repo's license, toolchain,
+and public-surface judge. Recommend whole-project reuse only when its behavior
+and maintenance obligations fit; otherwise name the small library or component
+to reuse and the original-code behavior it must still match. Record rejected
+candidates and the concrete incompatibility, not a vague preference to rewrite.
+
 Then make three calls for this repo, each ending in one committed line naming
 the files that forced it — a call without file paths is no call:
 
