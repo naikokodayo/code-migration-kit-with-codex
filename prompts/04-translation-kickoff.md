@@ -50,6 +50,15 @@ stages — and the one run that skipped this per-file pass ate the exact
 failure class it exists to catch in the compile step (RUN-NOTES, Run 1
 deviations).
 
+For commands that modify external state, reviewers must trace selection context
+from the active view through argument expansion to the actual write target.
+A shell-free API or memory-safe language does not prove that the correct branch,
+remote, file, or account is selected. Reject unavailable context rather than
+substituting a convenient default. At the permitted validation stage, exercise
+two distinguishable targets and verify that the unselected one is unchanged.
+For interactive commands, separately verify the controlling terminal,
+confirmation text, visible results, and terminal restoration after failure.
+
 Progress invariant: translated-file count on disk must grow between polls.
 No growth from a worker for three minutes means treat it as failed — recover
 its output from the journal or disk, and report the stall. Stalls are yours

@@ -269,3 +269,21 @@ performance claim. Final execution totals belong in the target's evidence files.
 These lessons add benchmark evidence requirements to `prompts/06-post-parity.md`.
 They do not waive the judge or full-parity gates, or establish that prompt 00b's
 complete independent-review workflow has been dogfooded.
+
+## Tig continuation — state and command safety (2026-09-27), PARITY OPEN
+
+- **Selection context is part of correctness.** A safe argv API can still mutate
+  the wrong branch or remote when it substitutes the checked-out branch for a
+  selected branch. Track the reference selected by the active view; reject
+  unavailable selection variables instead of inventing `HEAD` or `origin`.
+  Test at least two distinct branches/remotes and assert the untouched target.
+- **Preserve terminal behavior, not only command exit codes.** Verify foreground
+  commands receive the controlling terminal, confirmations show expanded argv,
+  output remains readable, and normal terminal modes return after errors and
+  signals. Capture-only subprocess tests cannot establish these properties.
+- **Keep historical evidence tied to its artifact.** Record executable hashes
+  and source revisions for every run. A later successful CI run or component
+  check does not repair an earlier failed application gate, and evidence from
+  a previous binary does not validate newly edited code.
+
+These are findings from an incomplete port, not proof of full compatibility.
