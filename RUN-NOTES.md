@@ -1,8 +1,9 @@
 # Run notes — receipts from this kit's own test runs
 
 > Runs 1–3 and the original script-verification section are historical upstream
-> receipts from the Claude Code kit, not Codex validation. The final Tig section
-> is a Codex feasibility-only run. Run `python3 scripts/check_kit.py` for this
+> receipts from the Claude Code kit, not Codex validation. The Tig feasibility
+> receipt and subsequent implementation lessons have separate scopes below.
+> Run `python3 scripts/check_kit.py` for this
 > adaptation's offline checks.
 
 This kit's prompts and scripts were dogfooded before publishing. This file is
@@ -228,3 +229,43 @@ the same honesty bar the survey-build path held before Run 3 exercised it.
   from harness bugs. Mutation checks require passing original controls.
 
 This run validates feasibility-stage usability, not an end-to-end Codex port.
+
+
+## Tig continuation — implementation lessons (2026-09-26), PARITY OPEN
+
+The feasibility receipt above remains historical: its build timing and static
+census do not become migration results when work resumes. The continuation has
+Rust component implementations, configuration checks, and a graph differential
+adapter; these establish narrower evidence than an end-to-end Tig migration.
+This section records lessons, not a full-suite pass, completion verdict, or
+performance claim. Final execution totals belong in the target's evidence files.
+
+- **Keep the original assertion ledger and the adapter separate.** Retain each
+  original test path, assertion or observable behavior, comparator, and target
+  route. Record unsupported and unexecuted checks explicitly. A graph adapter
+  that compares ASCII/UTF-8 text does not cover terminal color attributes,
+  interactive views, or every assertion in the original executable suite.
+  Randomized cases add coverage; they do not replace original assertions or
+  increase the count of original tests passed.
+- **Isolate fixture creation before changing expectations.** Tig's harness runs
+  `git init`; a host `init.defaultBranch` setting can change fixture branch
+  names before either binary runs. Reproduce a failure against C, then run both
+  binaries with the same isolated Git configuration and the suite's expected
+  default branch. Preserve the original assertion. Record the environment fix
+  in the adapter and baseline ledger; do not relabel every failure as inherited
+  or weaken branch-name checks to accommodate a developer's global settings.
+- **Measure optimized, equivalent work.** Graph differential process timings
+  include startup, and the adapter defaults to a Rust debug binary. They are
+  correctness-run receipts, not a controlled speed comparison. Compare an
+  optimized C build with a release Rust build using the same graph inputs,
+  modes, and verified output; measure interactive application workloads
+  separately. A faster graph component cannot establish a faster full port.
+- **Scope safety claims.** `forbid(unsafe_code)` constrains first-party Rust
+  compilation. It does not prohibit unsafe code inside terminal dependencies,
+  their transitive dependencies, the standard library, or Git. Report the
+  first-party restriction and dependency/FFI review independently; do not call
+  this a wholly unsafe-free stack on the strength of a crate-level lint.
+
+These lessons add benchmark evidence requirements to `prompts/06-post-parity.md`.
+They do not waive the judge or full-parity gates, or establish that prompt 00b's
+complete independent-review workflow has been dogfooded.
