@@ -21,6 +21,9 @@ The original Apache-2.0 license and Anthropic copyright notices are retained.
 See [LICENSE](LICENSE). Upstream history is preserved for traceability.
 
 This adaptation: [naikokodayo/code-migration-kit-with-codex](https://github.com/naikokodayo/code-migration-kit-with-codex).
+The Codex-specific adaptation and its migration checks were developed with
+[Codex](https://github.com/apps/chatgpt-codex-connector) assistance; the
+upstream authors remain credited for the original kit.
 
 This kit defaults to **structure-preserving migrations** — same architecture,
 same data structures, new language. That's the case where the process below is

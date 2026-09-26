@@ -15,6 +15,8 @@
 保留上游 Git 历史、Anthropic 版权声明和 [Apache-2.0 许可证](LICENSE)。
 这是独立适配项目，并非 OpenAI 或 Anthropic 官方产品。
 当前仓库：[naikokodayo/code-migration-kit-with-codex](https://github.com/naikokodayo/code-migration-kit-with-codex)。
+Codex 专用适配与迁移检查由 [Codex](https://github.com/apps/chatgpt-codex-connector)
+协助完成；原始工具包的贡献仍归属于上游作者。
 
 ## 已适配
 
