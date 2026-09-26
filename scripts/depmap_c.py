@@ -4,10 +4,12 @@
 """Deterministic dependency mapper for C/C++ codebases (stdlib only).
 
 Implements the kit's dependency-map contract (prompts/01-dependency-map.md).
-Parses `#include "..."` directives — quoted includes only. Angle-bracket
-includes (<stdio.h>, <vector>) are system/third-party: neither edges nor
-misses. Each .c/.cc/.cpp file is also linked to its same-stem header when one
-exists, since implementation→own-header is a real migration-order edge.
+Parses `#include "..."` directives — quoted includes only. Optional
+`--include-dir` resolves project headers found through in-repository `-I`
+directories. Angle-bracket includes (<stdio.h>, <vector>) are system/third-party:
+neither edges nor misses. Each .c/.cc/.cpp file is also linked to its same-stem
+header when one exists, since implementation→own-header is a real migration-order
+edge.
 
 This is a starter: it does not run the preprocessor, so includes hidden behind
 #ifdef are all counted (conservative: more edges, never fewer). For production
@@ -15,7 +17,8 @@ runs on macro-heavy trees, generate edges with `gcc -MM` per file instead and
 keep the output contract identical.
 
 Usage:
-  python3 depmap_c.py --root path/to/repo --out path/to/migration/depmap
+  python3 depmap_c.py --root path/to/repo --out path/to/migration/depmap \
+    --include-dir include
 Output: edges.tsv, order.txt, cycles.txt (same contract as depmap_python.py)
 
 Test: python3 scripts/depmap_c.py --root fixtures/c --out /tmp/depmap-c && diff /tmp/depmap-c/edges.tsv fixtures/c/expected_edges.tsv && diff /tmp/depmap-c/cycles.txt fixtures/c/expected_cycles.txt && diff /tmp/depmap-c/order.txt fixtures/c/expected_order.txt
@@ -39,7 +42,7 @@ def find_files(root: Path):
     )
 
 
-def extract_edges(files, root):
+def extract_edges(files, root, include_dirs=()):
     rel = {p: p.relative_to(root).as_posix() for p in files}
     by_rel = {v: k for k, v in rel.items()}
     edges = set()
@@ -47,7 +50,8 @@ def extract_edges(files, root):
         text = path.read_text(encoding="utf-8", errors="replace")
         for inc in INCLUDE_RE.findall(text):
             # resolve relative to including file, then repo root
-            for cand in ((path.parent / inc), (root / inc)):
+            for cand in (path.parent / inc, root / inc,
+                         *(root / directory / inc for directory in include_dirs)):
                 try:
                     cand_rel = cand.resolve().relative_to(root).as_posix()
                 except ValueError:
@@ -118,10 +122,16 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--root", required=True, type=Path)
     ap.add_argument("--out", required=True, type=Path)
+    ap.add_argument("--include-dir", action="append", default=[],
+                    help="in-repository -I directory, relative to --root (repeatable)")
     args = ap.parse_args()
     root = args.root.resolve()
+    for directory in args.include_dir:
+        candidate = (root / directory).resolve()
+        if not candidate.is_relative_to(root) or not candidate.is_dir():
+            ap.error(f"include directory must exist inside --root: {directory}")
     files = find_files(root)
-    edges, nodes = extract_edges(files, root)
+    edges, nodes = extract_edges(files, root, args.include_dir)
     sccs = tarjan_scc(nodes, edges)
     cycles = [s for s in sccs if len(s) > 1]
 

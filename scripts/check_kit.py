@@ -43,6 +43,17 @@ def main():
                 assert (out / name).read_bytes() == (fixture / ('expected_' + name)).read_bytes(), (language, name)
         print('PASS: Python, TS, C dependency fixtures')
 
+        project = tmp / 'c-include-dir'
+        (project / 'src').mkdir(parents=True)
+        (project / 'include/tig').mkdir(parents=True)
+        (project / 'src/main.c').write_text('#include "tig/core.h"\n')
+        (project / 'include/tig/core.h').write_text('/* header */\n')
+        out = tmp / 'c-include-dir-map'
+        run(sys.executable, ROOT / 'scripts/depmap_c.py', '--root', project,
+            '--out', out, '--include-dir', 'include')
+        assert (out / 'edges.tsv').read_text() == 'from\tto\nsrc/main.c\tinclude/tig/core.h\n'
+        print('PASS: C dependency map resolves in-repo -I headers')
+
         manifest = tmp / 'manifest.tsv'
         order = ROOT / 'fixtures/python/expected_order.txt'
         run(sys.executable, ROOT / 'scripts/make_manifest.py', '--order', order,
