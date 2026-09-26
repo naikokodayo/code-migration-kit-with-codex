@@ -36,7 +36,9 @@ reproducible measurement receipt:
 - Run the same behavior and workload: identical fixtures, arguments, output
   mode, environment, and result consumption. Verify outputs and exit status
   with the parity judge before timing. Link original assertions to their
-  adapter routes and record any unsupported observables; extra generated
+  adapter routes and record any original-language helper still used by the
+  target run. Mixed routes measure only the target component actually reached.
+  Record any unsupported observables; extra generated
   scenarios do not substitute for missing original assertions.
 - Control fixture setup as well as execution. For Git-backed suites, isolate
   system/global configuration and set `init.defaultBranch` to the value the
