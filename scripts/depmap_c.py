@@ -6,7 +6,8 @@
 Implements the kit's dependency-map contract (prompts/01-dependency-map.md).
 Parses `#include "..."` directives — quoted includes only. Optional
 `--include-dir` resolves project headers found through in-repository `-I`
-directories. Angle-bracket includes (<stdio.h>, <vector>) are system/third-party:
+directories; `--own-header-dir` locates same-stem headers stored apart from
+sources. Angle-bracket includes (<stdio.h>, <vector>) are system/third-party:
 neither edges nor misses. Each .c/.cc/.cpp file is also linked to its same-stem
 header when one exists, since implementation→own-header is a real migration-order
 edge.
@@ -18,7 +19,7 @@ keep the output contract identical.
 
 Usage:
   python3 depmap_c.py --root path/to/repo --out path/to/migration/depmap \
-    --include-dir include
+    --include-dir include --own-header-dir include/project
 Output: edges.tsv, order.txt, cycles.txt (same contract as depmap_python.py)
 
 Test: python3 scripts/depmap_c.py --root fixtures/c --out /tmp/depmap-c && diff /tmp/depmap-c/edges.tsv fixtures/c/expected_edges.tsv && diff /tmp/depmap-c/cycles.txt fixtures/c/expected_cycles.txt && diff /tmp/depmap-c/order.txt fixtures/c/expected_order.txt
@@ -42,7 +43,7 @@ def find_files(root: Path):
     )
 
 
-def extract_edges(files, root, include_dirs=()):
+def extract_edges(files, root, include_dirs=(), own_header_dirs=()):
     rel = {p: p.relative_to(root).as_posix() for p in files}
     by_rel = {v: k for k, v in rel.items()}
     edges = set()
@@ -63,9 +64,11 @@ def extract_edges(files, root, include_dirs=()):
         # implementation -> own header
         if path.suffix in {".c", ".cc", ".cpp", ".cxx"}:
             for hext in (".h", ".hpp", ".hxx"):
-                hdr = path.with_suffix(hext)
-                if hdr in rel and rel[hdr] != rel[path]:
-                    edges.add((rel[path], rel[hdr]))
+                for hdr in (path.with_suffix(hext),
+                            *(root / directory / (path.stem + hext)
+                              for directory in own_header_dirs)):
+                    if hdr in rel and rel[hdr] != rel[path]:
+                        edges.add((rel[path], rel[hdr]))
     return sorted(edges), sorted(rel.values())
 
 
@@ -124,14 +127,16 @@ def main():
     ap.add_argument("--out", required=True, type=Path)
     ap.add_argument("--include-dir", action="append", default=[],
                     help="in-repository -I directory, relative to --root (repeatable)")
+    ap.add_argument("--own-header-dir", action="append", default=[],
+                    help="directory containing same-stem headers, relative to --root (repeatable)")
     args = ap.parse_args()
     root = args.root.resolve()
-    for directory in args.include_dir:
+    for directory in [*args.include_dir, *args.own_header_dir]:
         candidate = (root / directory).resolve()
         if not candidate.is_relative_to(root) or not candidate.is_dir():
             ap.error(f"include directory must exist inside --root: {directory}")
     files = find_files(root)
-    edges, nodes = extract_edges(files, root, args.include_dir)
+    edges, nodes = extract_edges(files, root, args.include_dir, args.own_header_dir)
     sccs = tarjan_scc(nodes, edges)
     cycles = [s for s in sccs if len(s) > 1]
 
