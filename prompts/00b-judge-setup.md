@@ -3,10 +3,12 @@
 <!-- Modified for the Codex adaptation; see README.md for provenance. -->
 
 **When:** after the feasibility gate signs off "migrate," before Step 1 — but
-only when the feasibility report's call #3 found too few public-surface tests
-to judge parity (the common case). If your existing suite already exercises the
-public surface, or already lives in a third language, you have your judge: skip
-this prompt and carry that suite into Step 6.
+when the feasibility report's call #3 found that a portable, validated judge
+is missing. A public-surface suite or a suite in a third language is a candidate,
+not automatically a validated judge. Reuse it, adapting binary selection,
+fixtures, or observation interfaces where needed. Skip this prompt only when
+that judge's coverage limits and validation against both the original and
+known breakage are already documented; carry that evidence into Step 6.
 **Prerequisites:** signed-off feasibility verdict; the call #3 test census
 (which tests hit the public surface, which import internals).
 **Placeholders:** `[target language]`, `[reviewer model]` (from the Model plan
@@ -30,13 +32,14 @@ interface — CLI, HTTP, file I/O, exported API — never through source-languag
 internals. A test that imports an internal function dies with the old language
 and can't see the new code, so it can't judge anything. Three steps:
 
-**1. Categorize.** Take the call #3 census and confirm it against the source:
-classify every existing test as **portable** (expressible as an external call
-that both implementations answer) or **internal-bound** (depends on functions,
-private state, or language features that won't exist in [target language]).
-Internal-bound tests are not judge material — note what behavior they were
-guarding so it isn't lost, but they stay behind. Report the two counts as a
-grep/file receipt, not a narrated total.
+**1. Categorize.** Take the call #3 census and confirm it against the source.
+Keep its counting unit and four mutually exclusive categories: **portable**
+(including tests needing an adapter), **internal-bound**, **mixed**, and
+**unknown**. Reconcile their counts to the original total and keep a path-backed
+ledger. For internal-bound tests, record the guarded behavior so it can become
+an external scenario. Split mixed behavior into portable and internal checks
+without double-counting the original test unit; resolve unknowns with evidence
+or leave them explicitly open at the gate. Document any classification changes.
 
 **2. Rewrite for portability.** Convert the portable tests into assertions that
 run against both old and new through the external interface — same inputs, same
@@ -50,17 +53,26 @@ rewrite weakened an assertion — a loosened tolerance, a dropped field, an
 deviation; log it. Every weakening they confirm against the original test is a
 bug in the rewrite, not the reviewer; fix the harness and resample.
 
-**3. Validate the judge against known answers.** A judge you haven't tested is a
-guess. Run the full harness against the **original** code: it must pass clean —
-any failure here is a bug in the judge, because the spec passes its own spec.
-Then run it against **deliberately broken** original code — mutate a handful of
-behaviors by hand (flip a comparison, drop an error path, change an output
-format) and confirm the judge **fails** on each. A judge that doesn't catch
-breakage isn't a judge; it's a green light wired to nothing. Report both runs:
-N/N pass on the original, and one caught failure per injected mutation.
+**3. Validate the judge against known answers.** Run the full harness against
+the **original** code and report executed, passed, failed, and skipped counts.
+Investigate each failure before trusting or changing the judge: it may be a
+harness defect, an inherited source failure, or an environment/capability issue.
+Keep a baseline-failure/skip ledger with evidence and the affected behavior;
+never weaken, delete, or silently skip an assertion to obtain a clean baseline.
+Fix confirmed harness defects and re-run. Unresolved failures or coverage gaps
+must be presented for a human decision at the gate, not declared validated.
 
-Stop and show me the harness, the portable/internal-bound counts, the reviewer
-findings, and both validation runs — the clean pass and every caught mutation.
+Then run the judge against **deliberately broken** original code in disposable
+copies — mutate representative behaviors (flip a comparison, drop an error
+path, change an output format). First establish a passing original control for
+each mutation, then confirm the corresponding check fails on the mutation; an
+unrelated pre-existing failure is not evidence that the mutation was caught.
+Report each control, mutation and caught failure. A skipped or undetected
+mutation leaves that part of the judge unvalidated.
+
+Stop and show me the harness, all four reconciled category counts, the reviewer
+findings, the baseline-failure/skip ledger, and both validation runs — original
+controls and every mutation outcome.
 Nothing in Step 1 starts until I sign off that the judge is real. This harness
 is the artifact Step 6 runs to call the migration done; keep it under version
 control and keep it running until the end.

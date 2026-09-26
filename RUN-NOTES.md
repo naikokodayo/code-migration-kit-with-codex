@@ -1,8 +1,9 @@
 # Run notes — receipts from this kit's own test runs
 
-> Historical upstream receipts, preserved from the Claude Code kit. References
-> to its settings, models, and files describe those runs; they are not Codex
-> validation. Run `python3 scripts/check_kit.py` for this adaptation's checks.
+> Runs 1–3 and the original script-verification section are historical upstream
+> receipts from the Claude Code kit, not Codex validation. The final Tig section
+> is a Codex feasibility-only run. Run `python3 scripts/check_kit.py` for this
+> adaptation's offline checks.
 
 This kit's prompts and scripts were dogfooded before publishing. This file is
 the receipts: what ran, what broke, what changed because of it.
@@ -181,3 +182,49 @@ the same honesty bar the survey-build path held before Run 3 exercised it.
 - `build_daemon.sh` (2026-06-11): `--once` produces the numbered output file,
   round counter resumes from disk, bad `--interval` and missing flag values
   rejected ✓
+
+
+## Codex feasibility — Tig C → Rust (2026-09-26), STOPPED AT STAGE 00
+
+- Source: [jonas/tig](https://github.com/jonas/tig), revision
+  `7d841c9302456b8c8f0629a559344137dc4faa4f` (`tig-2.6.1-12-g7d841c93`).
+- Scope: static feasibility assessment and one isolated source build. No Tig
+  tests, judge construction, dependency-map generation, or Rust translation.
+- Census: 39 tracked `src/*.c` files / 20,759 physical lines; 38
+  `include/tig/*.h` files / 3,066 lines. `compat/*.c` separately contains
+  19,424 lines, including 17,141 in `utf8proc_data.c`; do not treat the Unicode
+  data as another large first-party translation module. Generated
+  `src/builtin-config.c` is excluded from the tracked-source count.
+- Build: one fresh disposable-copy `make -j4
+  DIST_VERSION=2.6.1-12-g7d841c93 all`, exit 0, 2.008 seconds wall time on
+  macOS 26.6 arm64 / Apple clang 21.0.0. Includes Tig, test-graph and doc-gen;
+  no test execution. This is not a Rust build estimate or a cold-cache benchmark.
+- Test unit: 154 `test/**/*-test` entrypoint files, as selected by
+  [Makefile:264](https://github.com/jonas/tig/blob/7d841c9302456b8c8f0629a559344137dc4faa4f/Makefile#L264).
+  Static classification: 130 executable-level entries needing compatible
+  scripts/snapshots and runner routing; 23 C-linked graph-helper entries; one
+  executable regression gated by C AddressSanitizer; zero unclassified.
+  These are not runtime scenario counts, assertion counts, or passes.
+- Judge limitations: `SYSTEM_TIG=1` still builds the C graph helper
+  ([Makefile:278](https://github.com/jonas/tig/blob/7d841c9302456b8c8f0629a559344137dc4faa4f/Makefile#L278));
+  comparisons default to ignoring whitespace
+  ([libtest.sh:313](https://github.com/jonas/tig/blob/7d841c9302456b8c8f0629a559344137dc4faa4f/test/tools/libtest.sh#L313));
+  display snapshots save characters without color attributes
+  ([display.c:359](https://github.com/jonas/tig/blob/7d841c9302456b8c8f0629a559344137dc4faa4f/src/display.c#L359)).
+  Existing tests are a promising starting point, not an already validated
+  terminal-parity judge.
+- Verdict: technically feasible as a structure-preserving migration with local
+  ownership changes; defer full migration until the judge is validated and a
+  maintainer accepts the support/compatibility scope.
+- Process: two independent read-only Explorers examined architecture and test
+  portability; the parent measured the build and reconciled evidence. An
+  Executor updated the feasibility instructions. Token usage was not measured.
+- Kit changes prompted by this run: explicit output/build write boundaries;
+  revision-pinned, non-overlapping census; portable/internal/mixed/unknown test
+  categories; adapter and oracle limitations; source-vs-target timing separation;
+  and resume routing based on verdict/sign-off rather than directory existence.
+  Judge setup now reuses a public suite without assuming it is validated,
+  retains all four categories, and distinguishes inherited/environment failures
+  from harness bugs. Mutation checks require passing original controls.
+
+This run validates feasibility-stage usability, not an end-to-end Codex port.

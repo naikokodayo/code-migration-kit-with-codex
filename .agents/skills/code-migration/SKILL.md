@@ -30,14 +30,19 @@ read-only inside loops. Use independent Codex subagents as described in
 
 ## Routing
 
-1. **No migration artifacts exist yet** (`migration/` absent): run
+1. **No explicit feasibility verdict and human sign-off yet:** the existence
+   of `migration/` or a cost-log entry does not establish completion. If no
+   report with an explicit verdict exists, run
    `prompts/00-feasibility.md`. Produce the report, deliver the verdict, STOP.
    Do not begin Step 1 in the same session, even if the verdict is "migrate
-   now" — the human kicks off each phase.
+   now" — the human kicks off each phase. If a report exists but has not been
+   signed off, return its verdict and stop at that gate.
 1b. **Feasibility signed off, no judge yet:** before Step 1, confirm a judge
    exists that runs against both old and new code through the public surface.
-   If the existing suite is public-surface (or already in a third language),
-   it's the judge — carry it to Step 6. If it imports internals, run
+   A public-surface suite, even one in a third language, may need an adapter,
+   instrumented UI/TTY, fixtures, or additional oracles. Carry it to Step 6 only
+   when its portability, coverage limits, and validation are documented. If a
+   portable judge is missing or unvalidated, run
    `prompts/00b-judge-setup.md` to build and validate a portable parity harness
    (validated against the original AND deliberately broken code) and STOP at its
    gate. Never start Step 1 without a judge — there's no exit condition without

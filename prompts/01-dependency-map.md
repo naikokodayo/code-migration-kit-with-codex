@@ -2,8 +2,9 @@
 
 <!-- Modified for the Codex adaptation; see README.md for provenance. -->
 
-**When:** Step 1, can start immediately. **Prerequisites:** none (feeds the
-work manifest and the rulebook's package map).
+**When:** Step 1, after feasibility and judge sign-off. **Prerequisites:**
+an explicit approved feasibility verdict and documented judge validation
+(feeds the work manifest and the rulebook's package map).
 **Placeholders:** `[your dependency mechanism]`, `[crate / package / module]`,
 `[reviewer model]` (from the Model plan signed off at the feasibility gate).
 **Note:** this kit ships starter scripts — `scripts/depmap_python.py`,

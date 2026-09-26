@@ -36,7 +36,8 @@ and one part becomes invalid.
 > and a one-sentence kickoff.
 
 > **Status:** Reference code. `RUN-NOTES.md` and `examples/` are preserved
-> upstream history, not evidence of a Codex end-to-end migration. Local checks
+> upstream history, not evidence of a Codex end-to-end migration. The Tig entry
+> in `RUN-NOTES.md` records a Codex feasibility-only assessment. Local checks
 > cover script fixtures, skill structure, and rule matching; see below.
 
 ## Quick start
@@ -62,7 +63,8 @@ installation. No Claude account, SDK, or API integration is required.
    language, or ask Codex to read `prompts/00-feasibility.md` from the kit and
    fill its placeholders. Stop at the feasibility verdict.
 5. Validate the behavioral judge before Step 1. Use `prompts/00b-judge-setup.md`
-   if your current tests depend on internals that won't survive the port.
+   if the existing suite needs adaptation or lacks documented judge validation.
+   Executable-level tests can still miss terminal behavior or select the wrong binary.
 6. Before prompt 03, the human adapts and installs `templates/migration.rules`
    into the target's `.codex/rules/migration.rules`, then restarts Codex with
    the project config trusted. Follow [the rule setup and limitations](templates/rules.README.md).
