@@ -82,3 +82,7 @@ read-only inside loops. Use independent Codex subagents as described in
 - A failure seen three times is a rule bug: stop fixing instances, queue the
   amendment, propose regenerating the slice.
 - "Don't migrate" and "stop here" are valid recommendations at every gate.
+- For a redesign with a public parity judge, bind each integrated burndown to
+  the tested source and binary hashes. Verify the committed receipt before
+  citing it as current; retain original failures, skips, and intentional
+  safety differences until their replacement oracle is explicitly accepted.

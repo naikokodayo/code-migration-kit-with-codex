@@ -65,7 +65,10 @@ process when a prompt exists for the step.
    failures and skips. Intermediate duplicate success logs may live in a
    referenced, fixed Git commit instead of multiplying JSON files in the
    current `migration/` tree; do not discard a required queue, baseline ledger,
-   or historical receipt.
+   or historical receipt. Before calling a result the latest committed
+   checkpoint, read the receipt from that commit and verify its recorded source
+   identity and hashes. A local uncommitted run is not evidence attached to an
+   older commit.
 
 ## Where things live
 
